@@ -54,7 +54,10 @@ class TasksActivity : AppCompatActivity() {
 
         viewModel = ViewModelProvider(
             this,
-            TasksViewModelFactory(TasksRepository, UserPreferencesRepository.getInstance(this))
+            TasksViewModelFactory(
+                TasksRepository,
+                UserPreferencesRepository(dataStore, this)
+            )
         )[TasksViewModel::class.java]
 
         setupRecyclerView()
