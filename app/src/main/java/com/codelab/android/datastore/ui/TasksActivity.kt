@@ -35,16 +35,18 @@ private val DATA_STORE_FILE_NAME = "user_prefs.pb"
 private val SORT_ORDER_KEY = "sort_order"
 
 
-private val Context.userPreferenceStore : DataStore<UserPreferences> by dataStore(
+private val Context.userPreferenceStore: DataStore<UserPreferences> by dataStore(
     fileName = DATA_STORE_FILE_NAME,
-    serializer =  UserPreferencesSerializer
+    serializer = UserPreferencesSerializer
 )
+
 class TasksActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityTasksBinding
     private val adapter = TasksAdapter()
 
     private lateinit var viewModel: TasksViewModel
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,7 +58,7 @@ class TasksActivity : AppCompatActivity() {
             this,
             TasksViewModelFactory(
                 TasksRepository,
-                UserPreferencesRepository(dataStore, this)
+                UserPreferencesRepository(this.userPreferenceStore, this)
             )
         )[TasksViewModel::class.java]
 
