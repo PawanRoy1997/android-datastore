@@ -57,7 +57,7 @@ class TasksActivity : AppCompatActivity() {
                 TasksRepository,
                 UserPreferencesRepository(dataStore)
             )
-        ).get(TasksViewModel::class.java)
+        )[TasksViewModel::class.java]
 
         setupRecyclerView()
         setupFilterListeners(viewModel)
