@@ -19,7 +19,7 @@ package com.codelab.android.datastore.ui
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.asLiveData
-import com.codelab.android.datastore.data.SortOrder
+import com.codelab.android.database.UserPreferences.SortOrder
 import com.codelab.android.datastore.data.Task
 import com.codelab.android.datastore.data.TasksRepository
 import com.codelab.android.datastore.data.UserPreferencesRepository
@@ -77,6 +77,7 @@ class TasksViewModel(
             SortOrder.BY_DEADLINE_AND_PRIORITY -> filteredTasks.sortedWith(
                 compareByDescending<Task> { it.deadline }.thenBy { it.priority }
             )
+            else -> throw UnsupportedOperationException("$sortOrder not supported.")
         }
     }
 

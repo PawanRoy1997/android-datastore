@@ -68,6 +68,7 @@ dependencies {
 
     // preference datastore
     implementation "androidx.datastore:datastore-core:$datastoreVersion"
+    implementation "androidx.datastore:datastore:$datastoreVersion"
     implementation "com.google.protobuf:protobuf-javalite:$protobufVersion"
 
     // testing
