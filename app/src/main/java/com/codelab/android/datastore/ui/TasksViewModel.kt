@@ -19,12 +19,16 @@ package com.codelab.android.datastore.ui
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.asLiveData
+import androidx.lifecycle.viewModelScope
+import com.codelab.android.database.UserPreferences
 import com.codelab.android.database.UserPreferences.SortOrder
 import com.codelab.android.datastore.data.Task
 import com.codelab.android.datastore.data.TasksRepository
 import com.codelab.android.datastore.data.UserPreferencesRepository
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.launch
 
 data class TasksUiModel(
     val tasks: List<Task>,
@@ -36,6 +40,8 @@ class TasksViewModel(
     repository: TasksRepository,
     private val userPreferencesRepository: UserPreferencesRepository
 ) : ViewModel() {
+    private val userPreferenceFlow: Flow<UserPreferences> =
+        userPreferencesRepository.userPreferencesFlow
 
     // Keep the show completed filter as a stream of changes
     private val showCompletedFlow = MutableStateFlow(false)
@@ -47,13 +53,12 @@ class TasksViewModel(
     // we should recreate the list of tasks
     private val tasksUiModelFlow = combine(
         repository.tasks,
-        showCompletedFlow,
-        sortOrderFlow
-    ) { tasks: List<Task>, showCompleted: Boolean, sortOrder: SortOrder ->
+        userPreferenceFlow,
+    ) { tasks: List<Task>, userPreferences ->
         return@combine TasksUiModel(
-            tasks = filterSortTasks(tasks, showCompleted, sortOrder),
-            showCompleted = showCompleted,
-            sortOrder = sortOrder
+            tasks = filterSortTasks(tasks, userPreferences.showCompleted, userPreferences.sortOrder),
+            showCompleted = userPreferences.showCompleted,
+            sortOrder = userPreferences.sortOrder
         )
     }
     val tasksUiModel = tasksUiModelFlow.asLiveData()
@@ -77,20 +82,23 @@ class TasksViewModel(
             SortOrder.BY_DEADLINE_AND_PRIORITY -> filteredTasks.sortedWith(
                 compareByDescending<Task> { it.deadline }.thenBy { it.priority }
             )
-            else -> throw UnsupportedOperationException("$sortOrder not supported.")
+            SortOrder.UNSPECIFIED -> filteredTasks
+            SortOrder.UNRECOGNIZED ->  throw UnsupportedOperationException("$sortOrder not supported")
         }
     }
 
     fun showCompletedTasks(show: Boolean) {
-        showCompletedFlow.value = show
+        viewModelScope.launch {
+            userPreferencesRepository.updateShowCompleted(show)
+        }
     }
 
     fun enableSortByDeadline(enable: Boolean) {
-        userPreferencesRepository.enableSortByDeadline(enable)
+        viewModelScope.launch{ userPreferencesRepository.enableSortByDeadline(enable) }
     }
 
     fun enableSortByPriority(enable: Boolean) {
-        userPreferencesRepository.enableSortByPriority(enable)
+        viewModelScope.launch{ userPreferencesRepository.enableSortByPriority(enable) }
     }
 }
 

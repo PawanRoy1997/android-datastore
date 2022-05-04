@@ -21,10 +21,11 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.datastore.core.DataStore
 import androidx.datastore.dataStore
+import androidx.datastore.migrations.SharedPreferencesMigration
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
 import com.codelab.android.database.UserPreferences
-import com.codelab.android.datastore.data.SortOrder
+import com.codelab.android.database.UserPreferences.SortOrder
 import com.codelab.android.datastore.data.TasksRepository
 import com.codelab.android.datastore.data.UserPreferencesRepository
 import com.codelab.android.datastore.data.UserPreferencesSerializer
@@ -37,7 +38,24 @@ private val SORT_ORDER_KEY = "sort_order"
 
 private val Context.userPreferenceStore: DataStore<UserPreferences> by dataStore(
     fileName = DATA_STORE_FILE_NAME,
-    serializer = UserPreferencesSerializer
+    serializer = UserPreferencesSerializer,
+    produceMigrations = { context ->
+        listOf(
+            SharedPreferencesMigration(
+                context, USER_PREFERENCE_NAME
+            ) { sharedPreferencesView, currentData ->
+                if (currentData.sortOrder == UserPreferences.SortOrder.UNSPECIFIED) {
+                    currentData.toBuilder().setSortOrder(
+                        UserPreferences.SortOrder.valueOf(
+                            sharedPreferencesView.getString(SORT_ORDER_KEY, SortOrder.NONE.name)!!
+                        )
+                    ).build()
+                } else {
+                    currentData
+                }
+            }
+        )
+    }
 )
 
 class TasksActivity : AppCompatActivity() {
@@ -46,7 +64,6 @@ class TasksActivity : AppCompatActivity() {
     private val adapter = TasksAdapter()
 
     private lateinit var viewModel: TasksViewModel
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
