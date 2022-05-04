@@ -53,4 +53,6 @@ ext {
     espressoVersion = '3.4.0'
 
     datastoreVersion = '1.0.0'
+    protobufVersion = "3.18.0"
+    protobufArtifactVersion = "3.18.0"
 }
