@@ -31,9 +31,9 @@ import com.codelab.android.datastore.data.UserPreferencesRepository
 import com.codelab.android.datastore.data.UserPreferencesSerializer
 import com.codelab.android.datastore.databinding.ActivityTasksBinding
 
-private val USER_PREFERENCE_NAME = "user_preferences"
-private val DATA_STORE_FILE_NAME = "user_prefs.pb"
-private val SORT_ORDER_KEY = "sort_order"
+private const val USER_PREFERENCE_NAME = "user_preferences"
+private const val DATA_STORE_FILE_NAME = "user_prefs.pb"
+private const val SORT_ORDER_KEY = "sort_order"
 
 
 private val Context.userPreferenceStore: DataStore<UserPreferences> by dataStore(
@@ -44,9 +44,9 @@ private val Context.userPreferenceStore: DataStore<UserPreferences> by dataStore
             SharedPreferencesMigration(
                 context, USER_PREFERENCE_NAME
             ) { sharedPreferencesView, currentData ->
-                if (currentData.sortOrder == UserPreferences.SortOrder.UNSPECIFIED) {
+                if (currentData.sortOrder == SortOrder.UNSPECIFIED) {
                     currentData.toBuilder().setSortOrder(
-                        UserPreferences.SortOrder.valueOf(
+                        SortOrder.valueOf(
                             sharedPreferencesView.getString(SORT_ORDER_KEY, SortOrder.NONE.name)!!
                         )
                     ).build()
@@ -75,7 +75,7 @@ class TasksActivity : AppCompatActivity() {
             this,
             TasksViewModelFactory(
                 TasksRepository,
-                UserPreferencesRepository(this.userPreferenceStore, this)
+                UserPreferencesRepository(this.userPreferenceStore)
             )
         )[TasksViewModel::class.java]
 

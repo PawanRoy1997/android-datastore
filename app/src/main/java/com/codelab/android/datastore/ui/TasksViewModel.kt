@@ -26,7 +26,6 @@ import com.codelab.android.datastore.data.Task
 import com.codelab.android.datastore.data.TasksRepository
 import com.codelab.android.datastore.data.UserPreferencesRepository
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
@@ -42,12 +41,6 @@ class TasksViewModel(
 ) : ViewModel() {
     private val userPreferenceFlow: Flow<UserPreferences> =
         userPreferencesRepository.userPreferencesFlow
-
-    // Keep the show completed filter as a stream of changes
-    private val showCompletedFlow = MutableStateFlow(false)
-
-    // Keep the sort order as a stream of changes
-    private val sortOrderFlow = userPreferencesRepository.sortOrderFlow
 
     // Every time the sort order, the show completed filter or the list of tasks emit,
     // we should recreate the list of tasks
